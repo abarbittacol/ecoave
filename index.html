@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECO Aventuras - Ropa infantil de segunda mano</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .eco-primary {
+            background-color: #7FB069;
+        }
+        .eco-secondary {
+            background-color: #E6C2BF;
+        }
+        .eco-accent {
+            background-color: #F9D8D6;
+        }
+        .eco-text {
+            color: #4A5759;
+        }
+        .eco-btn {
+            transition: all 0.3s ease;
+        }
+        .eco-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-link {
+            transition: all 0.2s ease;
+        }
+        .sidebar-link:hover {
+            background-color: rgba(127, 176, 105, 0.1);
+        }
+        .sidebar-link.active {
+            background-color: rgba(127, 176, 105, 0.2);
+            border-left: 4px solid #7FB069;
+        }
+        .tab-btn.active {
+            color: #7FB069;
+            border-bottom: 2px solid #7FB069;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .admin-tab {
+            display: none;
+        }
+        .admin-tab.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- App Container -->
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-md">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center">
+                    <svg class="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                    <span class="ml-2 text-2xl font-bold eco-text">ECO Aventuras</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="eco-text font-medium" onclick="showPage('home')">Inicio</a>
+                    <a href="#" class="eco-text font-medium" onclick="showPage('catalog')">Catálogo</a>
+                    <a href="#" class="eco-text font-medium" onclick="showPage('donate')">Donar</a>
+                    <a href="#" class="eco-text font-medium" onclick="showPage('impact')">Impacto</a>
+                    <a href="#" class="eco-text font-medium" onclick="showPage('profile')">Mi Perfil</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="loginBtn" class="px-4 py-2 rounded-full eco-secondary text-white font-medium eco-btn" onclick="toggleAuthModal('login')">Iniciar Sesión</button>
+                    <button id="registerBtn" class="px-4 py-2 rounded-full eco-primary text-white font-medium eco-btn" onclick="toggleAuthModal('register')">Registrarse</button>
+                    <div id="userMenu" class="hidden relative">
+                        <button class="flex items-center space-x-1 focus:outline-none" onclick="toggleUserDropdown()">
+                            <div class="h-8 w-8 rounded-full bg-green-200 flex items-center justify-center">
+                                <span class="text-green-800 font-medium">JM</span>
+                            </div>
+                            <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="showPage('profile')">Mi Perfil</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="showPage('myItems')">Mis Prendas</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="showPage('orders')">Mis Pedidos</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="showPage('adminDashboard')">Panel Admin</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="logout()">Cerrar Sesión</a>
+                        </div>
+                    </div>
+                    <button id="cartBtn" class="hidden relative p-2 rounded-full hover:bg-gray-100" onclick="toggleCart()">
+                        <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span id="cartCount" class="absolute top-0 right-0 h-5 w-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">0</span>
+                    </button>
+                </div>
+                <button class="md:hidden focus:outline-none" onclick="toggleMobileMenu()">
+                    <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <div id="mobileMenu" class="hidden md:hidden px-4 py-2 bg-white">
+                <a href="#" class="block py-2 eco-text font-medium" onclick="showPage('home')">Inicio</a>
+                <a href="#" class="block py-2 eco-text font-medium" onclick="showPage('catalog')">Catálogo</a>
+                <a href="#" class="block py-2 eco-text font-medium" onclick="showPage('donate')">Donar</a>
+                <a href="#" class="block py-2 eco-text font-medium" onclick="showPage('impact')">Impacto</a>
+                <a href="#" class="block py-2 eco-text font-medium" onclick="showPage('profile')">Mi Perfil</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            <!-- Home Page -->
+            <div id="home" class="page active">
+                <!-- Hero Section -->
+                <div class="relative bg-gradient-to-r from-green-50 to-blue-50 py-16">
+                    <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/2 mb-8 md:mb-0">
+                            <h1 class="text-4xl md:text-5xl font-bold mb-4 eco-text">Ropa infantil con propósito</h1>
+                            <p class="text-lg mb-6 text-gray-600">Compra, vende o dona ropa infantil en buen estado. Únete a nuestra comunidad y forma parte del cambio hacia una economía circular.</p>
+                            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                                <button class="px-6 py-3 rounded-full eco-primary text-white font-medium eco-btn" onclick="showPage('catalog')">Explorar Catálogo</button>
+                                <button class="px-6 py-3 rounded-full bg-white border border-green-600 text-green-600 font-medium eco-btn" onclick="showPage('donate')">Donar Ropa</button>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 flex justify-center">
+                            <svg class="h-64 w-64" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="#7FB069" d="M44.7,-76.4C58.9,-69.2,71.8,-58.3,79.6,-44.5C87.3,-30.7,89.9,-14.1,88.3,1.6C86.7,17.3,80.9,32.1,71.5,44.1C62.1,56.1,49.1,65.3,35.1,70.7C21.1,76.1,6.1,77.7,-8.3,76.1C-22.7,74.5,-36.5,69.7,-48.4,61.5C-60.3,53.3,-70.3,41.7,-76.4,28.1C-82.5,14.5,-84.7,-1.1,-81.1,-15.2C-77.5,-29.3,-68.1,-41.9,-56.3,-49.7C-44.5,-57.5,-30.3,-60.5,-17.1,-67.8C-3.9,-75.1,8.3,-86.7,22.2,-87.1C36.1,-87.5,51.7,-76.7,67.3,-65.9Z" transform="translate(100 100)" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Section -->
+                <div class="py-16 bg-white">
+                    <div class="container mx-auto px-4">
+                        <h2 class="text-3xl font-bold text-center mb-12 eco-text">¿Cómo funciona?</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="bg-green-50 rounded-lg p-6 text-center card-hover">
+                                <div class="bg-green-100 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2 eco-text">Registra tus prendas</h3>
+                                <p class="text-gray-600">Sube fotos y detalles de la ropa infantil que ya no usas pero está en buen estado.</p>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-6 text-center card-hover">
+                                <div class="bg-blue-100 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2 eco-text">Nuestro equipo se encarga</h3>
+                                <p class="text-gray-600">Las Guardianas de la Ropa seleccionan, reacondicionan y publican tus prendas.</p>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-6 text-center card-hover">
+                                <div class="bg-purple-100 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-2 eco-text">Gana o dona</h3>
+                                <p class="text-gray-600">Decide si quieres vender tus prendas o donarlas a comunidades que las necesitan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impact Section -->
+                <div class="py-16 bg-gray-50">
+                    <div class="container mx-auto px-4">
+                        <h2 class="text-3xl font-bold text-center mb-12 eco-text">Nuestro Impacto</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                            <div class="p-4">
+                                <div class="text-4xl font-bold text-green-600 mb-2">1,250+</div>
+                                <p class="text-gray-600">Prendas reutilizadas</p>
+                            </div>
+                            <div class="p-4">
+                                <div class="text-4xl font-bold text-green-600 mb-2">15</div>
+                                <p class="text-gray-600">Comunidades beneficiadas</p>
+                            </div>
+                            <div class="p-4">
+                                <div class="text-4xl font-bold text-green-600 mb-2">350+</div>
+                                <p class="text-gray-600">Familias participantes</p>
+                            </div>
+                        </div>
+                        <div class="mt-12 text-center">
+                            <button class="px-6 py-3 rounded-full eco-primary text-white font-medium eco-btn" onclick="showPage('impact')">Ver más sobre nuestro impacto</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Section -->
+                <div class="py-16 bg-white">
+                    <div class="container mx-auto px-4">
+                        <div class="max-w-3xl mx-auto bg-gradient-to-r from-green-100 to-blue-100 rounded-xl p-8 shadow-lg">
+                            <h2 class="text-3xl font-bold text-center mb-6 eco-text">Únete a nuestra comunidad</h2>
+                            <p class="text-center text-gray-600 mb-8">Por solo $150 mensuales, accede a todas las funcionalidades y forma parte del cambio.</p>
+                            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                                <button class="px-6 py-3 rounded-full eco-primary text-white font-medium eco-btn" onclick="showSubscriptionModal()">Suscribirme ahora</button>
+                                <button class="px-6 py-3 rounded-full bg-white border border-green-600 text-green-600 font-medium eco-btn" onclick="showPage('catalog')">Explorar primero</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Catalog Page -->
+            <div id="catalog" class="page hidden">
+                <div class="container mx-auto px-4 py-8">
+                    <h1 class="text-3xl font-bold mb-8 eco-text">Catálogo de Prendas</h1>
+                    
+                    <!-- Filters -->
+                    <div class="bg-white rounded-lg shadow-md p-4 mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+                                <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">Todas las edades</option>
+                                    <option value="0-1">0-1 años</option>
+                                    <option value="1-3">1-3 años</option>
+                                    <option value="3-6">3-6 años</option>
+                                    <option value="6-9">6-9 años</option>
+                                    <option value="9-12">9-12 años</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de prenda</label>
+                                <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">Todas las prendas</option>
+                                    <option value="remera">Remeras</option>
+                                    <option value="pantalon">Pantalones</option>
+                                    <option value="vestido">Vestidos</option>
+                                    <option value="abrigo">Abrigos</option>
+                                    <option value="calzado">Calzado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                                <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">Todos los estados</option>
+                                    <option value="excelente">Excelente</option>
+                                    <option value="bueno">Bueno</option>
+                                    <option value="reacondicionado">Reacondicionado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" placeholder="Min" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <span>-</span>
+                                    <input type="number" placeholder="Max" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 eco-btn">Aplicar filtros</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Products Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <!-- Product Card 1 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                            <div class="h-48 bg-gray-200 relative">
+                                <div class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Excelente</div>
+                                <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2zm0 2v14h14V5H5zm2 2h10v10H7V7zm2 2v6h6V9H9z"/>
+                                </svg>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold eco-text">Remera Azul</h3>
+                                    <span class="font-bold text-green-600">$120</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-3">
+                                    <p>Edad: 3-6 años</p>
+                                    <p>Talla: 6</p>
+                                </div>
+                                <button class="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 eco-btn" onclick="addToCart(1)">Agregar al carrito</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Product Card 2 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                            <div class="h-48 bg-gray-200 relative">
+                                <div class="absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">Bueno</div>
+                                <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2zm0 2v14h14V5H5zm2 2h10v10H7V7zm2 2v6h6V9H9z"/>
+                                </svg>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold eco-text">Pantalón Jean</h3>
+                                    <span class="font-bold text-green-600">$180</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-3">
+                                    <p>Edad: 6-9 años</p>
+                                    <p>Talla: 8</p>
+                                </div>
+                                <button class="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 eco-btn" onclick="addToCart(2)">Agregar al carrito</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Product Card 3 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                            <div class="h-48 bg-gray-200 relative">
+                                <div class="absolute top-2 right-2 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded">Reacondicionado</div>
+                                <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2zm0 2v14h14V5H5zm2 2h10v10H7V7zm2 2v6h6V9H9z"/>
+                                </svg>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold eco-text">Vestido Floral</h3>
+                                    <span class="font-bold text-green-600">$150</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-3">
+                                    <p>Edad: 1-3 años</p>
+                                    <p>Talla: 3</p>
+                                </div>
+                                <button class="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 eco-btn" onclick="addToCart(3)">Agregar al carrito</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Product Card 4 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                            <div class="h-48 bg-gray-200 relative">
+                                <div class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Excelente</div>
+                                <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2zm0 2v14h14V5H5zm2 2h10v10H7V7zm2 2v6h6V9H9z"/>
+                                </svg>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold eco-text">Abrigo Invierno</h3>
+                                    <span class="font-bold text-green-600">$250</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-3">
+                                    <p>Edad: 9-12 años</p>
+                                    <p>Talla: 12</p>
+                                </div>
+                                <button class="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 eco-btn" onclick="addToCart(4)">Agregar al carrito</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="mt-8 flex justify-center">
+                        <nav class="flex items-center space-x-2">
+                            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100">Anterior</button>
+                            <button class="px-3 py-1 rounded bg-green-600 text-white">1</button>
+                            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100">2</button>
+                            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100">3</button>
+                            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100">Siguiente</button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Donate Page -->
+            <div id="donate" class="page hidden">
+                <div class="container mx-auto px-4 py-8">
+                    <h1 class="text-3xl font-bold mb-8 eco-text">Donar Ropa</h1>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-semibold mb-4 eco-text">¿Cómo funciona la donación?</h2>
+                            <ol class="list-decimal pl-5 space-y-2">
+                                <li class="text-gray-700">Registra las prendas que deseas donar en el formulario.</li>
+                                <li class="text-gray-700">Nuestro equipo de Guardianas de la Ropa coordinará contigo para la recepción.</li>
+                                <li class="text-gray-700">Evaluaremos el estado de las prendas y las prepararemos para su entrega.</li>
+                                <li class="text-gray-700">Te notificaremos cuando tus donaciones lleguen a su destino.</li>
+                                <li class="text-gray-700">¡Recibirás recompensas por tu contribución!</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 eco-text">Registra tus prendas para donar</h3>
+                            <form id="donationForm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de prenda</label>
+                                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            <option value="">Selecciona un tipo</option>
+                                            <option value="remera">Remera</option>
+                                            <option value="pantalon">Pantalón</option>
+                                            <option value="vestido">Vestido</option>
+                                            <option value="abrigo">Abrigo</option>
+                                            <option value="calzado">Calzado</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Edad recomendada</label>
+                                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            <option value="">Selecciona un rango</option>
+                                            <option value="0-1">0-1 años</option>
+                                            <option value="1-3">1-3 años</option>
+                                            <option value="3-6">3-6 años</option>
+                                            <option value="6-9">6-9 años</option>
+                                            <option value="9-12">9-12 años</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Color principal</label>
+                                        <input type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ej: Azul, Rojo, Verde...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            <option value="">Selecciona un estado</option>
+                                            <option value="excelente">Excelente</option>
+                                            <option value="bueno">Bueno</option>
+                                            <option value="regular">Regular</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                    <textarea class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Describe brevemente la prenda..."></textarea>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Fotos</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Arrastra y suelta fotos aquí o</p>
+                                        <button type="button" class="mt-2 px-3 py-1 text-sm text-blue-600 underline">selecciona archivos</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end">
+                                    <button type="button" class="px-6 py-3 rounded-full eco-primary text-white font-medium eco-btn" onclick="submitDonation()">Registrar donación</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold mb-2 eco-text">Recompensas por donar</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li class="text-gray-700">5 prendas donadas = 1 mes gratis de suscripción</li>
+                                <li class="text-gray-700">10 prendas donadas = 3 meses gratis de suscripción</li>
+                                <li class="text-gray-700">Por cada prenda donada, recibes 10 puntos canjeables</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Page -->
+            <div id="impact" class="page hidden">
+                <div class="container mx-auto px-4 py-8">
+                    <h1 class="text-3xl font-bold mb-8 eco-text">Nuestro Impacto Social</h1>
+                    
+                    <!-- Impact Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                            <div class="text-5xl font-bold text-green-600 mb-2">1,250+</div>
+                            <p class="text-xl text-gray-600">Prendas reutilizadas</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                            <div class="text-5xl font-bold text-green-600 mb-2">15</div>
+                            <p class="text-xl text-gray-600">Comunidades beneficiadas</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                            <div class="text-5xl font-bold text-green-600 mb-2">350+</div>
+                            <p class="text-xl text-gray-600">Familias participantes</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Map Section -->
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-12">
+                        <h2 class="text-2xl font-semibold mb-6 eco-text">Mapa de Impacto</h2>
+                        <div class="h-96 bg-gray-100 rounded-lg relative">
+                            <!-- Uruguay Map SVG -->
+                            <svg viewBox="0 0 500 700" class="h-full w-full">
+                                <path d="M250,100 L300,150 L350,200 L375,250 L350,300 L300,350 L250,400 L200,350 L150,300 L125,250 L150,200 L200,150 Z" fill="#e5e7eb" stroke="#374151" stroke-width="2"></path>
+                                <!-- Impact Points -->
+                                <circle cx="250" cy="200" r="10" fill="#7FB069" class="cursor-pointer" onclick="showCommunityInfo('Montevideo')"></circle>
+                                <circle cx="300" cy="250" r="8" fill="#7FB069" class="cursor-pointer" onclick="showCommunityInfo('Canelones')"></circle>
+                                <circle cx="200" cy="300" r="8" fill="#7FB069" class="cursor-pointer" onclick="showCommunityInfo('San José')"></circle>
+                                <circle cx="350" cy="300" r="6" fill="#7FB069" class="cursor-pointer" onclick="showCommunityInfo('Maldonado')"></circle>
+                                <circle cx="150" cy="250" r="6" fill="#7FB069" class="cursor-pointer" onclick="showCommunityInfo('Colonia')"></circle>
+                            </svg>
+                            <div class="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-md">
+                                <p class="text-sm font-medium">Haz clic en los puntos para ver detalles</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Community Info -->
+                    <div id="communityInfo" class="bg-white rounded-lg shadow-md p-6 mb-12 hidden">
+                        <h2 id="communityName" class="text-2xl font-semibold mb-4 eco-text">Comunidad</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-medium mb-2 eco-text">Detalles de la comunidad</h3>
+                                <ul class="space-y-2">
+                                    <li><span class="font-medium">Prendas entregadas:</span> <span id="clothesDelivered">120</span></li>
+                                    <li><span class="font-medium">Familias beneficiadas:</span> <span id="familiesHelped">45</span></li>
+                                    <li><span class="font-medium">Última entrega:</span> <span id="lastDelivery">15 de junio, 2023</span></li>
+                                    <li><span class="font-medium">Próxima entrega:</span> <span id="nextDelivery">20 de agosto, 2023</span></li>
+                                </ul>
+                            </div>
+                            <div class="bg-gray-100 h-48 rounded-lg flex items-center justify-center">
+                                <p class="text-gray-500">Fotos de la comunidad</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Monthly Impact -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-2xl font-semibold mb-6 eco-text">Impacto Mensual</h2>
+                        <div class="h-64 mb-6">
+                            <canvas id="impactChart"></canvas>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <p class="font-medium mb-1">Prendas reutilizadas</p>
+                                <div class="text-2xl font-bold text-green-600">+25%</div>
+                                <p class="text-sm text-gray-600">vs. mes anterior</p>
+                            </div>
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <p class="font-medium mb-1">Nuevos donantes</p>
+                                <div class="text-2xl font-bold text-blue-600">+15%</div>
+                                <p class="text-sm text-gray-600">vs. mes anterior</p>
+                            </div>
+                            <div class="p-4 bg-purple-50 rounded-lg">
+                                <p class="font-medium mb-1">Ahorro en residuos</p>
+                                <div class="text-2xl font-bold text-purple-600">120kg</div>
+                                <p class="text-sm text-gray-600">este mes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile" class="page hidden">
+                <div class="container mx-auto px-4 py-8">
+                    <h1 class="text-3xl font-bold mb-8 eco-text">Mi Perfil</h1>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Left Column - User Info -->
+                        <div class="md:col-span-1">
+                            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                                <div class="flex flex-col items-center mb-4">
+                                    <div class="h-24 w-24 rounded-full bg-green-200 flex items-center justify-center mb-3">
+                                        <span class="text-3xl text-green-800 font-medium">JM</span>
+                                    </div>
+                                    <h2 class="text-xl font-semibold eco-text">Juan Martínez</h2>
+                                    <p class="text-gray-600">Miembro desde Junio 2023</p>
+                                </div>
+                                <div class="border-t pt-4">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-gray-600">Email:</span>
+                                        <span class="font-medium">juan@ejemplo.com</span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-gray-600">Teléfono:</span>
+                                        <span class="font-medium">099 123 456</span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-gray-600">Dirección:</span>
+                                        <span class="font-medium">Av. Principal 123</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Rol:</span>
+                                        <span class="font-medium">Comprador / Donante</span>
+                                    </div>
+                                </div>
+                                <button class="w-full mt-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 eco-btn">Editar perfil</button>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg shadow-md p-6">
+                                <h3 class="text-lg font-semibold mb-4 eco-text">Mi Suscripción</h3>
+                                <div class="bg-green-50 rounded-lg p-4 mb-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium">Estado:</span>
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Activa</span>
+                                    </div>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <span class="font-medium">Próximo pago:</span>
+                                        <span>15/08/2023</span>
+                                    </div>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <span class="font-medium">Monto:</span>
+                                        <span>$150</span>
+                                    </div>
+                                </div>
+                                <button class="w-full py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 eco-btn">Gestionar suscripción</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Activity -->
+                        <div class="md:col-span-2">
+                            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4 eco-text">Mis Estadísticas</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                                        <div class="text-3xl font-bold text-green-600 mb-1">8</div>
+                                        <p class="text-sm text-gray-600">Prendas compradas</p>
+                                    </div>
+                                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                                        <div class="text-3xl font-bold text-blue-600 mb-1">12</div>
+                                        <p class="text-sm text-gray-600">Prendas donadas</p>
+                                    </div>
+                                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                                        <div class="text-3xl font-bold text-purple-600 mb-1">120</div>
+                                        <p class="text-sm text-gray-600">Puntos acumulados</p>
+                                    </div>
+                                </div>
+                                <div class="h-48 mb-2">
+                                    <canvas id="userActivityChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4 eco-text">Mis Pedidos Recientes</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr class="border-b">
+                                                <th class="py-2 text-left">Fecha</th>
+                                                <th class="py-2 text-left">Pedido #</th>
+                                                <th class="py-2 text-left">Monto</th>
+                                                <th class="py-2 text-left">Estado</th>
+                                                <th class="py-2 text-left">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="py-3">10/07/2023</td>
+                                                <td class="py-3">#ECO-2305</td>
+                                                <td class="py-3">$350</td>
+                                                <td class="py-3"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Entregado</span></td>
+                                                <td class="py-3"><a href="#" class="text-blue-600 hover:underline">Ver detalles</a></td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="py-3">25/06/2023</td>
+                                                <td class="py-3">#ECO-2290</td>
+                                                <td class="py-3">$180</td>
+                                                <td class="py-3"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Entregado</span></td>
+                                                <td class="py-3"><a href="#" class="text-blue-600 hover:underline">Ver detalles</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3">05/06/2023</td>
+                                                <td class="py-3">#ECO-2275</td>
+                                                <td class="py-3">$220</td>
+                                                <td class="py-3"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Entregado</span></td>
+                                                <td class="py-3"><a href="#" class="text-blue-600 hover:underline">Ver detalles</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg shadow-md p-6">
+                                <h3 class="text-lg font-semibold mb-4 eco-text">Mis Donaciones</h3>
+                                <div class="space-y-4">
+                                    <div class="border rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="font-medium">Donación #D-128</h4>
+                                            <span class="text-sm text-gray-600">15/06/2023</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2">5 prendas donadas a la comunidad de Canelones</p>
+                                        <div class="flex justify-between items-center">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Entregada</span>
+                                            <a href="#" class="text-blue-600 hover:underline text-sm">Ver fotos</a>
+                                        </div>
+                                    </div>
+                                    <div class="border rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="font-medium">Donación #D-115</h4>
+                                            <span class="text-sm text-gray-600">28/05/2023</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2">7 prendas donadas a la comunidad de Montevideo</p>
+                                        <div class="flex justify-between items-center">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Entregada</span>
+                                            <a href="#" class="text-blue-600 hover:underline text-sm">Ver fotos</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard Page -->
+            <div id="adminDashboard" class="page hidden">
+                <div class="flex h-screen bg-gray-100">
+                    <!-- Sidebar -->
+                    <div class="w-64 bg-white shadow-md">
+                        <div class="p-4 border-b">
+                            <h2 class="text-xl font-bold eco-text">Panel Admin</h2>
+                        </div>
+                        <nav class="mt-4">
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link active" onclick="showAdminTab('dashboard')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Dashboard
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('products')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Productos
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('categories')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                Categorías
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('orders')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
+                                Pedidos
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('donations')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                Donaciones
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('users')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                Usuarios
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('communities')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                Comunidades
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('reports')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Reportes
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 sidebar-link" onclick="showAdminTab('settings')">
+                                <svg class="h-5 w-5 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Configuración
+                            </a>
+                        </nav>
+                    </div>
+                    
+                    <!-- Main Content -->
+                    <div class="flex-1 overflow-auto">
+                        <!-- Dashboard Tab -->
+                        <div id="admin-dashboard" class="admin-tab active p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold eco-text">Dashboard</h2>
+                                <div class="flex items-center space-x-2">
+                                    <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option>Últimos 30 días</option>
+                                        <option>Este mes</option>
+                                        <option>Último trimestre</option>
+                                        <option>Este año</option>
+                                    </select>
+                                    <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 eco-btn">Exportar</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Stats Overview -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h3 class="font-medium text-gray-600">Prendas Registradas</h3>
+                                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-3xl font-bold">1,458</div>
+                                    <div class="text-sm text-green-600 mt-2">+12% vs. mes anterior</div>
+                                </div>
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h3 class="font-medium text-gray-600">Ventas Mensuales</h3>
+                                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-3xl font-bold">$15,240</div>
+                                    <div class="text-sm text-blue-600 mt-2">+8% vs. mes anterior</div>
+                                </div>
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h3 class="font-medium text-gray-600">Donaciones</h3>
+                                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-3xl font-bold">324</div>
+                                    <div class="text-sm text-purple-600 mt-2">+25% vs. mes anterior</div>
+                                </div>
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h3 class="font-medium text-gray-600">Usuarios Activos</h3>
+                                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="text-3xl font-bold">512</div>
+                                    <div class="text-sm text-yellow-600 mt-2">+5% vs. mes anterior</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Charts -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    <h3 class="text-lg font-semibold mb-4 eco-text">Ventas vs. Donaciones</h3>
+                                    <div class="h-64">
+                                        <canvas id="salesDonationsChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    <h3 class="text-lg font-semibold mb-4 eco-text">Estado de Prendas</h3>
+                                    <div class="h-64">
+                                        <canvas id="clothesStatusChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Items -->
+                            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold eco-text">Prendas Recientes</h3>
+                                    <button class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50" onclick="showAdminTab('products')">Ver todas</button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr class="border-b">
+                                                <th class="py-2 text-left">ID</th>
+                                                <th class="py-2 text-left">Tipo</th>
+                                                <th class="py-2 text-left">Edad</th>
+                                                <th class="py-2 text-left">Estado</th>
+                                                <th class="py-2 text-left">Precio</th>
+                                                <th class="py-2 text-left">Fecha</th>
+                                                <th class="py-2 text-left">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="py-3">#P-1205</td>
+                                                <td class="py-3">Remera</td>
+                                                <td class="py-3">3-6 años</td>
+                                                <td class="py-3"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Excelente</span></td>
+                                                <td class="py-3">$120</td>
+                                                <td class="py-3">12/07/2023</td>
+                                                <td class="py-3">
+                                                    <div class="flex space-x-2">
+                                                        <button class="p-1 text-blue-600 hover:bg-blue-50 rounded">
+                                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-```
