@@ -12,7 +12,6 @@
       --brand-accent: #6d28d9;
       --brand-accent-soft: #f3e8ff;
     }
-
     .brand-primary-bg { background-color: var(--brand-primary); }
     .brand-primary-bg:hover { filter: brightness(0.92); }
     .brand-primary-text { color: var(--brand-primary); }
@@ -29,18 +28,13 @@
         <div class="flex items-center gap-4">
           <img id="institutionLogo" class="w-14 h-14 rounded-xl object-cover border" alt="Logo institucional" src="https://images.unsplash.com/photo-1579684453423-f84349ef60b0?w=200&q=80&auto=format&fit=crop" />
           <div>
-            <h1 class="text-2xl md:text-3xl font-bold" id="appTitle">CliniAgent</h1>
+            <h1 class="text-2xl md:text-3xl font-bold">CliniAgent</h1>
             <p id="institutionName" class="text-sm text-slate-500">Institución activa: Clínica Demo</p>
           </div>
         </div>
         <span class="px-3 py-1 text-xs rounded-full brand-secondary-bg brand-primary-text">Branding personalizable por institución</span>
       </div>
-      <p class="mt-4 text-slate-600">MVP web/móvil para gestionar historia clínica con una arquitectura basada en agentes. Pensado para medicina general, especialidades y podología.</p>
-      <div class="mt-4 flex flex-wrap gap-2 text-sm">
-        <span class="px-3 py-1 rounded-full brand-secondary-bg brand-primary-text">Responsive (web + celular/tablet)</span>
-        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">Escucha activa de consulta</span>
-        <span class="px-3 py-1 brand-accent-soft-bg rounded-full" style="color:var(--brand-accent)">Agentes escalables</span>
-      </div>
+      <p class="mt-4 text-slate-600">MVP web/móvil para gestionar historia clínica asistida por agentes para medicina general, especialidades y podología.</p>
     </header>
 
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -69,10 +63,10 @@
             <button id="stopBtn" class="bg-slate-600 hover:bg-slate-700 text-white rounded-lg px-4 py-2" disabled>Detener</button>
             <span id="micStatus" class="text-sm text-slate-500">Micrófono inactivo</span>
           </div>
-          <p class="text-xs text-slate-500 mt-2">Tip: si tu navegador no soporta reconocimiento por voz, usa el campo manual para simular texto de consulta.</p>
+          <p class="text-xs text-slate-500 mt-2">La transcripción detallada se usa solo en sesión para extraer datos clínicos. No se guarda en la historia clínica.</p>
 
           <div class="mt-3 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2">
-            <input id="manualTranscript" class="border rounded-lg p-2" placeholder="Ejemplo: paciente refiere dolor plantar hace 2 semanas, alergia a penicilina" />
+            <input id="manualTranscript" class="border rounded-lg p-2" placeholder="Ejemplo: dolor plantar 2 semanas, alergia a penicilina, indicar reposo y control" />
             <button id="injectBtn" class="brand-accent-bg text-white rounded-lg px-4 py-2">Procesar texto</button>
           </div>
         </div>
@@ -81,7 +75,6 @@
       <aside class="space-y-6">
         <div class="bg-white rounded-2xl border shadow-sm p-5 space-y-3">
           <h2 class="font-semibold text-lg">Branding por institución</h2>
-          <p class="text-sm text-slate-600">Personaliza logo y colores para cada clínica, hospital o consultorio.</p>
           <select id="presetInstitution" class="w-full border rounded-lg p-2 text-sm">
             <option value="demo">Clínica Demo</option>
             <option value="hospital">Hospital Central</option>
@@ -99,13 +92,12 @@
         </div>
 
         <div class="bg-white rounded-2xl border shadow-sm p-5 space-y-3">
-          <h2 class="font-semibold text-lg">Arquitectura de agentes (faseada)</h2>
+          <h2 class="font-semibold text-lg">Arquitectura de agentes</h2>
           <ol class="list-decimal ml-5 text-sm space-y-2 text-slate-600">
-            <li><b>Orquestador</b>: distribuye cada transcripción a agentes especializados.</li>
-            <li><b>Agente de Registro</b>: detecta paciente nuevo y crea ficha.</li>
-            <li><b>Agente Clínico</b>: extrae síntomas, alergias y plan.</li>
-            <li><b>Agente de Codificación</b> (siguiente fase): CIE-10/SNOMED.</li>
-            <li><b>Agente de Alertas</b> (siguiente fase): interacciones y banderas de riesgo.</li>
+            <li><b>Orquestador</b> enruta eventos.</li>
+            <li><b>Agente de Registro</b> crea/activa paciente.</li>
+            <li><b>Agente Clínico</b> extrae atributos clave y resumen.</li>
+            <li><b>Agente de Storage</b> persiste solo datos estructurados.</li>
           </ol>
         </div>
       </aside>
@@ -113,15 +105,15 @@
 
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <article class="bg-white rounded-2xl border shadow-sm p-5">
-        <h2 class="font-semibold text-lg mb-3">Transcripción en vivo</h2>
+        <h2 class="font-semibold text-lg mb-3">Transcripción en vivo (sesión actual)</h2>
         <div id="transcriptLog" class="h-56 overflow-auto bg-slate-50 border rounded-lg p-3 text-sm whitespace-pre-wrap"></div>
       </article>
 
       <article class="bg-white rounded-2xl border shadow-sm p-5">
-        <h2 class="font-semibold text-lg mb-3">Historia clínica estructurada (demo)</h2>
+        <h2 class="font-semibold text-lg mb-3">Historia clínica estructurada</h2>
         <div id="ehrView" class="space-y-2 text-sm"></div>
         <div class="mt-4 pt-4 border-t flex items-center justify-between gap-3">
-          <p class="text-xs text-slate-500">Persistencia local activa (localStorage).</p>
+          <p class="text-xs text-slate-500">Persistencia local: solo paciente + datos estructurados + branding.</p>
           <button id="clearStorageBtn" class="text-xs px-3 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50">Limpiar datos guardados</button>
         </div>
       </article>
@@ -129,52 +121,16 @@
   </main>
 
 <script>
-const STORAGE_KEY = 'cliniagent-mvp-state-v1';
+const STORAGE_KEY = 'cliniagent-mvp-state-v2';
 
 const state = {
   patient: null,
-  note: { motivo: [], sintomas: [], alergias: [], plan: [] },
-  transcript: [],
+  note: { motivo: [], sintomas: [], alergias: [], plan: [], resumen: '' },
+  transcript: [], // solo sesión, no persistente
   branding: {
     institutionName: 'Clínica Demo',
     logoUrl: 'https://images.unsplash.com/photo-1579684453423-f84349ef60b0?w=200&q=80&auto=format&fit=crop',
-    colors: {
-      primary: '#0f766e',
-      secondary: '#e0f2f1',
-      accent: '#6d28d9',
-      accentSoft: '#f3e8ff'
-    }
-  }
-};
-
-const storageAgent = {
-  save() {
-    const payload = {
-      patient: state.patient,
-      note: state.note,
-      transcript: state.transcript,
-      branding: state.branding,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  },
-  load() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-
-    try {
-      const parsed = JSON.parse(raw);
-      state.patient = parsed.patient || null;
-      state.note = parsed.note || { motivo: [], sintomas: [], alergias: [], plan: [] };
-      state.transcript = parsed.transcript || [];
-      state.branding = parsed.branding || state.branding;
-      return true;
-    } catch (error) {
-      console.warn('No fue posible cargar datos persistidos.', error);
-      return false;
-    }
-  },
-  clear() {
-    localStorage.removeItem(STORAGE_KEY);
+    colors: { primary: '#0f766e', secondary: '#e0f2f1', accent: '#6d28d9', accentSoft: '#f3e8ff' }
   }
 };
 
@@ -196,6 +152,33 @@ const institutionPresets = {
   }
 };
 
+const storageAgent = {
+  saveStructured() {
+    const payload = {
+      patient: state.patient,
+      note: state.note,
+      branding: state.branding
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  },
+  loadStructured() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    try {
+      const parsed = JSON.parse(raw);
+      state.patient = parsed.patient || null;
+      state.note = parsed.note || state.note;
+      state.branding = parsed.branding || state.branding;
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  clear() {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+};
+
 const registrationAgent = {
   run(payload) {
     if (!state.patient && payload.fullName && payload.documentId) {
@@ -206,26 +189,42 @@ const registrationAgent = {
         especialidad: payload.specialty,
         creadoEn: new Date().toISOString()
       };
-      log(`🧾 RegistroAgent: paciente nuevo creado (${payload.fullName}).`);
+      log('🧾 RegistroAgent: paciente nuevo creado.');
     } else if (state.patient && payload.documentId === state.patient.id) {
-      log(`👤 RegistroAgent: paciente existente activado (${state.patient.nombre}).`);
+      log('👤 RegistroAgent: paciente existente activado.');
     }
     render();
-    storageAgent.save();
+    storageAgent.saveStructured();
   }
 };
+
+function extractAfterKeyword(text, keyword) {
+  const rgx = new RegExp(`${keyword}\\s+a?\\s*([^,.]+)`, 'i');
+  const match = text.match(rgx);
+  return match ? match[1].trim() : null;
+}
 
 const clinicalAgent = {
   run(text) {
     const low = text.toLowerCase();
-    if (low.includes('dolor')) state.note.sintomas.push('Dolor reportado');
+    if (low.includes('dolor')) state.note.sintomas.push('Dolor');
     if (low.includes('fiebre')) state.note.sintomas.push('Fiebre');
-    if (low.includes('alergia')) state.note.alergias.push(text);
-    if (low.includes('plantar')) state.note.motivo.push('Consulta por pie/plantar');
-    if (low.includes('reposo') || low.includes('control') || low.includes('analgésico')) state.note.plan.push(text);
-    log('🩺 ClinicalAgent: historia actualizada desde transcripción.');
+    if (low.includes('plantar')) state.note.motivo.push('Dolor/consulta plantar');
+
+    const alergia = extractAfterKeyword(text, 'alergia');
+    if (alergia) state.note.alergias.push(alergia);
+
+    if (low.includes('reposo')) state.note.plan.push('Reposo relativo');
+    if (low.includes('control')) state.note.plan.push('Control evolutivo');
+    if (low.includes('analg')) state.note.plan.push('Evaluar analgésico');
+
+    const sintomas = [...new Set(state.note.sintomas)].join(', ') || 'sin síntomas relevantes explicitados';
+    const plan = [...new Set(state.note.plan)].join(', ') || 'sin plan indicado';
+    state.note.resumen = `Consulta resumida: ${sintomas}. Plan: ${plan}.`;
+
+    log('🩺 ClinicalAgent: se extrajeron atributos clínicos y resumen (sin guardar transcripción detallada).');
     render();
-    storageAgent.save();
+    storageAgent.saveStructured();
   }
 };
 
@@ -236,27 +235,22 @@ const brandingAgent = {
     document.documentElement.style.setProperty('--brand-secondary', branding.colors.secondary);
     document.documentElement.style.setProperty('--brand-accent', branding.colors.accent);
     document.documentElement.style.setProperty('--brand-accent-soft', branding.colors.accentSoft);
-
     document.getElementById('institutionName').textContent = `Institución activa: ${branding.institutionName}`;
     document.getElementById('institutionLogo').src = branding.logoUrl || state.branding.logoUrl;
+    syncBrandingControls(branding);
     log(`🎨 BrandingAgent: branding aplicado para ${branding.institutionName}.`);
-    syncBrandingControls(state.branding);
-    storageAgent.save();
+    storageAgent.saveStructured();
   }
 };
 
 const orchestratorAgent = {
-  onPatientForm(payload) {
-    registrationAgent.run(payload);
-  },
+  onPatientForm(payload) { registrationAgent.run(payload); },
   onTranscript(text) {
     state.transcript.push({ t: new Date().toLocaleTimeString(), text });
     clinicalAgent.run(text);
     renderTranscript();
   },
-  onBranding(payload) {
-    brandingAgent.apply(payload);
-  }
+  onBranding(payload) { brandingAgent.apply(payload); }
 };
 
 const form = document.getElementById('patientForm');
@@ -269,13 +263,12 @@ const stopBtn = document.getElementById('stopBtn');
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();
-  const payload = {
+  orchestratorAgent.onPatientForm({
     fullName: document.getElementById('fullName').value.trim(),
     documentId: document.getElementById('documentId').value.trim(),
     birthDate: document.getElementById('birthDate').value,
     specialty: document.getElementById('specialty').value,
-  };
-  orchestratorAgent.onPatientForm(payload);
+  });
 });
 
 document.getElementById('injectBtn').addEventListener('click', () => {
@@ -287,17 +280,11 @@ document.getElementById('injectBtn').addEventListener('click', () => {
 
 document.getElementById('presetInstitution').addEventListener('change', (e) => {
   const preset = institutionPresets[e.target.value];
-  if (!preset) return;
-  document.getElementById('customInstitutionName').value = preset.institutionName;
-  document.getElementById('logoUrl').value = preset.logoUrl;
-  document.getElementById('primaryColor').value = preset.colors.primary;
-  document.getElementById('secondaryColor').value = preset.colors.secondary;
-  document.getElementById('accentColor').value = preset.colors.accent;
-  document.getElementById('accentSoftColor').value = preset.colors.accentSoft;
+  if (preset) syncBrandingControls(preset);
 });
 
 document.getElementById('applyBranding').addEventListener('click', () => {
-  const payload = {
+  orchestratorAgent.onBranding({
     institutionName: document.getElementById('customInstitutionName').value.trim() || 'Institución sin nombre',
     logoUrl: document.getElementById('logoUrl').value.trim() || state.branding.logoUrl,
     colors: {
@@ -306,14 +293,23 @@ document.getElementById('applyBranding').addEventListener('click', () => {
       accent: document.getElementById('accentColor').value,
       accentSoft: document.getElementById('accentSoftColor').value
     }
-  };
-  orchestratorAgent.onBranding(payload);
+  });
+});
+
+document.getElementById('clearStorageBtn').addEventListener('click', () => {
+  storageAgent.clear();
+  state.patient = null;
+  state.note = { motivo: [], sintomas: [], alergias: [], plan: [], resumen: '' };
+  state.transcript = [];
+  render();
+  renderTranscript();
+  orchestratorAgent.onBranding(institutionPresets.demo);
+  log('🧹 StorageAgent: datos estructurados eliminados.');
 });
 
 function log(message) {
   state.transcript.push({ t: new Date().toLocaleTimeString(), text: message });
   renderTranscript();
-  storageAgent.save();
 }
 
 function renderTranscript() {
@@ -321,26 +317,7 @@ function renderTranscript() {
   transcriptLog.scrollTop = transcriptLog.scrollHeight;
 }
 
-function dedupe(arr) {
-  return [...new Set(arr)];
-}
-
-function render() {
-  if (state.patient) {
-    patientStatus.textContent = `Paciente activo: ${state.patient.nombre}`;
-    patientStatus.className = 'text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700';
-  }
-
-  const n = state.note;
-  ehrView.innerHTML = `
-    <div><b>Paciente:</b> ${state.patient ? `${state.patient.nombre} (${state.patient.id})` : 'No registrado'}</div>
-    <div><b>Especialidad:</b> ${state.patient ? state.patient.especialidad : '-'}</div>
-    <div><b>Motivo de consulta:</b> ${dedupe(n.motivo).join(', ') || '-'}</div>
-    <div><b>Síntomas:</b> ${dedupe(n.sintomas).join(', ') || '-'}</div>
-    <div><b>Alergias:</b> ${dedupe(n.alergias).join(' | ') || '-'}</div>
-    <div><b>Plan:</b> ${dedupe(n.plan).join(' | ') || '-'}</div>
-  `;
-}
+function dedupe(arr) { return [...new Set(arr)]; }
 
 function syncBrandingControls(branding) {
   document.getElementById('customInstitutionName').value = branding.institutionName;
@@ -351,17 +328,26 @@ function syncBrandingControls(branding) {
   document.getElementById('accentSoftColor').value = branding.colors.accentSoft;
 }
 
-document.getElementById('clearStorageBtn').addEventListener('click', () => {
-  storageAgent.clear();
-  state.patient = null;
-  state.note = { motivo: [], sintomas: [], alergias: [], plan: [] };
-  state.transcript = [];
-  state.branding = institutionPresets.demo;
-  renderTranscript();
-  render();
-  orchestratorAgent.onBranding(institutionPresets.demo);
-  log('🧹 StorageAgent: datos locales eliminados.');
-});
+function render() {
+  if (state.patient) {
+    patientStatus.textContent = `Paciente activo: ${state.patient.nombre}`;
+    patientStatus.className = 'text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700';
+  } else {
+    patientStatus.textContent = 'Sin paciente activo';
+    patientStatus.className = 'text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700';
+  }
+
+  const n = state.note;
+  ehrView.innerHTML = `
+    <div><b>Paciente:</b> ${state.patient ? `${state.patient.nombre} (${state.patient.id})` : 'No registrado'}</div>
+    <div><b>Especialidad:</b> ${state.patient ? state.patient.especialidad : '-'}</div>
+    <div><b>Motivo de consulta:</b> ${dedupe(n.motivo).join(', ') || '-'}</div>
+    <div><b>Síntomas:</b> ${dedupe(n.sintomas).join(', ') || '-'}</div>
+    <div><b>Alergias:</b> ${dedupe(n.alergias).join(', ') || '-'}</div>
+    <div><b>Plan:</b> ${dedupe(n.plan).join(', ') || '-'}</div>
+    <div><b>Resumen de consulta:</b> ${n.resumen || '-'}</div>
+  `;
+}
 
 let recognition;
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -370,13 +356,10 @@ if (SpeechRecognition) {
   recognition.lang = 'es-ES';
   recognition.continuous = true;
   recognition.interimResults = false;
-
   recognition.onresult = (event) => {
     const i = event.results.length - 1;
-    const text = event.results[i][0].transcript;
-    orchestratorAgent.onTranscript(text);
+    orchestratorAgent.onTranscript(event.results[i][0].transcript);
   };
-
   recognition.onend = () => {
     micStatus.textContent = 'Micrófono inactivo';
     startBtn.disabled = false;
@@ -396,19 +379,18 @@ startBtn.addEventListener('click', () => {
 });
 
 stopBtn.addEventListener('click', () => {
-  if (!recognition) return;
-  recognition.stop();
+  if (recognition) recognition.stop();
 });
 
-if (!storageAgent.load()) {
+if (!storageAgent.loadStructured()) {
   orchestratorAgent.onBranding(institutionPresets.demo);
 } else {
   orchestratorAgent.onBranding(state.branding);
-  log('💾 StorageAgent: sesión restaurada desde almacenamiento local.');
+  log('💾 StorageAgent: datos estructurados restaurados.');
 }
 
-renderTranscript();
 render();
+renderTranscript();
 </script>
 </body>
 </html>
